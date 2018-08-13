@@ -12,9 +12,16 @@ import (
 
 func main() {
 	logger := log.New(os.Stderr, "", 0)
+
+	lastPassNotePath := os.Getenv("LASTPASS_LOADER_NOTE_NAME")
+	if len(lastPassNotePath) == 0 {
+		logger.Println("please set LASTPASS_LOADER_NOTE_NAME in your environment before running")
+		os.Exit(1)
+	}
+
 	if lpass.IsLpassLoggedIn() {
 		logger.Println("logged into lastpass, retrieving env vars")
-		err := lpass.ReadEnvNote(logger)
+		err := lpass.ReadEnvNote(logger, lastPassNotePath)
 		if err != nil {
 			logger.Println("could not load data from lastpass")
 			os.Exit(1)
@@ -61,7 +68,7 @@ func main() {
 	}
 
 	logger.Println("login successful, reading data")
-	err = lpass.ReadEnvNote(logger)
+	err = lpass.ReadEnvNote(logger, lastPassNotePath)
 	if err != nil {
 		logger.Println("could not load data from lastpass")
 		os.Exit(1)

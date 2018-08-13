@@ -30,13 +30,13 @@ func IsInPathInEnv(env []string) bool {
 	return err == nil
 }
 
-func ReadEnvNote(logger *log.Logger) error {
+func ReadEnvNote(logger *log.Logger, notePath string) error {
 	readLpassNoteCmd := exec.Command(
 		"lpass",
 		"show",
 		"--name",
 		"--notes",
-		"ci-credentials/Fake Concourse Credentials",
+		notePath,
 	)
 	lpassNoteBytes, err := readLpassNoteCmd.Output()
 	if err != nil {
