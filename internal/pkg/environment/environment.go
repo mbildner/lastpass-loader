@@ -2,7 +2,6 @@ package environment
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,6 +12,8 @@ import (
 
 const PATH_PREFIX = "PATH="
 const PINENTRY_BIN_NAME = "pinentry"
+const TEMP_DIR_BASE = "/tmp"
+const TEMP_DIR_PREFIX = "lastpass-environment-symlink-temporary-directory"
 
 func EnvWithoutPinEntryInPath(logger *log.Logger) ([]string, string, error) {
 	var safeToIncludeEnvEntries []string
@@ -41,9 +42,7 @@ func EnvWithoutPinEntryInPath(logger *log.Logger) ([]string, string, error) {
 	pinentryDir = strings.TrimRight(pinentryDir, string(os.PathSeparator))
 
 	if !strings.Contains(pathEnvEntry, pinentryDir) {
-		errorMessage := "pinentry is not in path despite being found in `which`, this is a problem, I am bailing"
-		logger.Println(errorMessage)
-		return nil, "", errors.New(errorMessage)
+		return nil, "", errors.New("pinentry is not in path despite being found in `which`, this is a problem, I am bailing")
 	}
 
 	var pinentryOptions []os.FileInfo
@@ -51,12 +50,11 @@ func EnvWithoutPinEntryInPath(logger *log.Logger) ([]string, string, error) {
 
 	files, err := ioutil.ReadDir(pinentryDir)
 	if err != nil {
-		logger.Println("couldn't read pinentryDir, there is probably a problem")
 		return nil, "", errors.New("couldn't read pinentryDir, there is probably a problem")
 	}
 
 	for _, f := range files {
-		if strings.HasPrefix(f.Name(), "pinentry") {
+		if strings.HasPrefix(f.Name(), PINENTRY_BIN_NAME) {
 			pinentryOptions = append(pinentryOptions, f)
 		} else {
 			safeToInclude = append(safeToInclude, f)
@@ -65,9 +63,8 @@ func EnvWithoutPinEntryInPath(logger *log.Logger) ([]string, string, error) {
 
 	binariesToAdd := []string{}
 
-	replacementPathDir, err := ioutil.TempDir("/tmp", "temp-fake-path-dir")
+	replacementPathDir, err := ioutil.TempDir(TEMP_DIR_BASE, TEMP_DIR_PREFIX)
 	if err != nil {
-		fmt.Println("could not create a temp dir")
 		return nil, "", errors.New("could not create a temp dir")
 	}
 
