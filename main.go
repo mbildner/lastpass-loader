@@ -60,11 +60,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	logger.Println("login successful, reading data")
 	err = lpass.ReadEnvNote(logger)
 	if err != nil {
 		logger.Println("could not load data from lastpass")
 		os.Exit(1)
 	}
 
-	logger.Println("success")
+	logger.Println("done")
 }
