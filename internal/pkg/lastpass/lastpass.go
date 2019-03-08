@@ -44,7 +44,7 @@ func ReadEnvNote(logger *log.Logger, notePath string) error {
 		return err
 	}
 
-	var envVarsToLoad map[string]string
+	var envVarsToLoad map[string]interface{}
 
 	err = json.Unmarshal(lpassNoteBytes, &envVarsToLoad)
 	if err != nil {
